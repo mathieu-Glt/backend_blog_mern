@@ -9,11 +9,6 @@ require("./config/db");
 const { checkUser, requireAuth } = require("./middleware/auth.middleware");
 const app = express();
 
-// Utilisation du middleware body-parser pour analyser les données JSON
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(cookieParser());
-
 const allowedOrigins = [
   "http://localhost:3000",
   "http://localhost:3001",
@@ -22,25 +17,29 @@ const allowedOrigins = [
 
 const corsOptions = {
   origin: function (origin, callback) {
-    // allow requests with no origin like Postman
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) === -1) {
-      const msg =
-        "The CORS policy for this site does not allow access from the specified origin.";
-      return callback(new Error(msg), false);
+    if (!origin) return callback(null, true); // Postman ou scripts
+    if (
+      allowedOrigins.indexOf(origin) !== -1 ||
+      origin?.includes(".vercel.app")
+    ) {
+      return callback(null, true);
     }
-    return callback(null, true);
+    return callback(new Error("CORS blocked"), false);
   },
   credentials: true,
   allowedHeaders: ["sessionId", "Content-Type"],
   exposedHeaders: ["sessionId"],
-  methods: "GET, HEAD, PUT, PATCH, POST, DELETE",
-  preflightContinue: false,
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
 };
 
-app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
+app.use(cookieParser());
+
+// Utilisation du middleware body-parser pour analyser les données JSON
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
 //jwt
-app.get("*", checkUser);
 app.get("/jwtid", requireAuth, (req, res, next) => {
   res.status(200).json({
     status: 200,

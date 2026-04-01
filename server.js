@@ -14,7 +14,11 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-const allowedOrigins = ["http://localhost:3000", "http://localhost:3001"];
+const allowedOrigins = [
+  "http://localhost:3000",
+  "http://localhost:3001",
+  "https://frontend-blog-mern-tnlz.vercel.app",
+];
 
 const corsOptions = {
   origin: function (origin, callback) {

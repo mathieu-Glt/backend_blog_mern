@@ -6,7 +6,8 @@ require("dotenv").config({ path: "./config/.env" });
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 require("./config/db");
-const { checkUser, requireAuth } = require("./middleware/auth.middleware");
+const { requireAuth } = require("./middleware/auth.middleware");
+
 const app = express();
 
 const allowedOrigins = [
@@ -35,13 +36,11 @@ const corsOptions = {
 app.options("*", cors(corsOptions));
 app.use(cors(corsOptions));
 app.use(cookieParser());
-
-// Utilisation du middleware body-parser pour analyser les données JSON
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-//jwt
-app.get("/jwtid", requireAuth, (req, res, next) => {
+// JWT
+app.get("/jwtid", requireAuth, (req, res) => {
   res.status(200).json({
     status: 200,
     message: "Authenticated user",
@@ -49,11 +48,16 @@ app.get("/jwtid", requireAuth, (req, res, next) => {
   });
 });
 
-//routes
+// Routes
 app.use("/api/user", userRoutes);
 app.use("/api/post", postRoutes);
 
-//server
-app.listen(process.env.PORT, () => {
-  console.log(`Listening on port ${process.env.PORT}`);
-});
+// Export pour Vercel (obligatoire)
+module.exports = app;
+
+// Listen uniquement en local
+if (process.env.NODE_ENV !== "production") {
+  app.listen(process.env.PORT, () => {
+    console.log(`Listening on port ${process.env.PORT}`);
+  });
+}

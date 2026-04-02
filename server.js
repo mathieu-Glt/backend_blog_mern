@@ -17,7 +17,7 @@ const allowedOrigins = [
 
 const corsOptions = {
   origin: function (origin, callback) {
-    if (!origin) return callback(null, true); // Postman ou scripts
+    if (!origin) return callback(null, true);
     if (
       allowedOrigins.indexOf(origin) !== -1 ||
       origin?.includes(".vercel.app")
@@ -27,12 +27,13 @@ const corsOptions = {
     return callback(new Error("CORS blocked"), false);
   },
   credentials: true,
-  allowedHeaders: ["sessionId", "Content-Type"],
+  allowedHeaders: ["sessionId", "Authorization", "Content-Type"],
   exposedHeaders: ["sessionId"],
-  methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
+  methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE", "OPTIONS"],
 };
 
 app.options("*", cors(corsOptions));
+app.use(cors(corsOptions));
 app.use(cookieParser());
 
 // Utilisation du middleware body-parser pour analyser les données JSON
